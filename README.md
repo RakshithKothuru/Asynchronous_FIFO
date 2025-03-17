@@ -4,7 +4,8 @@ This repo contains verilog code for an asynchronous FIFO.
 
 ## Table of Contents
 1. [Introduction](#introduction)
-2. [Design Strategies](#design-space-exploration-and-design-strategies)
+2. [Technologies Used](#Technologies-Used)
+3. [Design Strategies](#design-space-exploration-and-design-strategies)
     1. [Read and Write Operations](#read-and-write-operations)
         1. [Operations](#operations)
         2. [Full, empty and wrapping condition](#full-empty-and-wrapping-condition)
@@ -16,7 +17,7 @@ This repo contains verilog code for an asynchronous FIFO.
         3. [two_ff_sync.v](#two_ff_syncv)
         4. [rptr_empty](#rptr_emptyv)
         5. [wptr_full.v](#wptr_fullv)
-3. [Conclusion](#conclusion)
+4. [Conclusion](#conclusion)
 
 ## 📌 Introduction
 

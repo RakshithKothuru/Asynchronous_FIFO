@@ -18,7 +18,7 @@ This repo contains verilog code for an asynchronous FIFO.
         5. [wptr_full.v](#wptr_fullv)
 3. [Conclusion](#conclusion)
 
-## Introduction
+## 📌 Introduction
 
 - FIFO stands for "First-In, First-Out." It is a type of data structure or buffer in which the first data element added (the "first in") is the first one to be removed (the "first out"). This structure is commonly used in scenarios where order of operations is important.
 - Async FIFO, or Asynchronous FIFO, is a FIFO buffer where the read and write operations are controlled by independent clock domains. This means that the writing process and the reading process are driven by different clocks, which are not synchronized. Async FIFOs are used to safely transfer data between these asynchronous clock domains.
@@ -27,9 +27,14 @@ This repo contains verilog code for an asynchronous FIFO.
     - Interfacing between different clock domains: For example, transferring data between a high-speed processing unit and a slower peripheral.
     - Communication between different modules: In a system-on-chip (SoC) where different modules might operate at different clock rates.
     - Buffering data: To handle variations in data flow rates between producer and consumer components in digital systems.
-    - Bridging clock domains: In FPGA designs and other digital circuits where subsystems run at different clock speeds
+    - Bridging clock domains: In FPGA designs and other digital circuits where subsystems run at different clock speeds.
 
-## Design Strategies
+## 📌 Technologies Used
+✅ Designed using **Verilog HDL**  
+✅ Simulated using **Icarus Verilog (iverilog) & GTKWave**  
+✅ Developed in **VS Code**       
+
+## 📌 Design Strategies
 
 The block diagram of async. FIFO that is implemented in this repo is given below. Thin lines represent single bit signal where as thisck lines represent multi-bit signal.
 
@@ -86,7 +91,7 @@ For implementing this FIFO, I have divided the design into 5 modules:-
 4. **``rptr_empty.v``**: This modlue consist of the logic for the Read pointer handler. It is completely synchronized by read clock and consist of the logic for generation of FIFO empty signal.
 5. **``wptr_empty.v``**: This modlue consist of the logic for the Write pointer handler. It is completely synchronized by write clock and consist of the logic for generation of FIFO full signal.
 
-## Conclusion
+## 📌 Conclusion
 
 The design and implementation of the asynchronous FIFO were successful, demonstrating reliable data storage and retrieval between asynchronous clock domains. The use of gray code counters ensured proper synchronization, and the module's behavior in full and empty conditions was as expected. The testbench validated the FIFO's functionality across different scenarios, proving the design's correctness and efficiency.
 

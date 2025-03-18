@@ -30,7 +30,7 @@ This repo contains verilog code for an asynchronous FIFO.
     - Buffering data: To handle variations in data flow rates between producer and consumer components in digital systems.
     - Bridging clock domains: In FPGA designs and other digital circuits where subsystems run at different clock speeds.
 
-## 📌 Technologies Used
+# Technologies Used
 ✅ Designed using **Verilog HDL**  
 ✅ Simulated using **Icarus Verilog (iverilog) & GTKWave**  
 ✅ Developed in **VS Code**       

@@ -1,92 +1,113 @@
-//--------------DESCRIPTION--------------
-// This is a testbench for the FIFO module.
-// The testbench generates random data and writes it to the FIFO, 
-// then reads it back and compares the results.
-//---------------------------------------
-
 `timescale 1ns/1ps
 
-module FIFO_tb();
+module FIFO_tb;
 
-    parameter DSIZE = 8; // Data bus size
-    parameter ASIZE = 3; // Address bus size
-    parameter DEPTH = 1 << ASIZE; // Depth of the FIFO memory
+  // Parameters
+  parameter DSIZE = 8;
+  parameter ASIZE = 4;
 
-    reg [DSIZE-1:0] wdata;   // Input data
-    wire [DSIZE-1:0] rdata;  // Output data
-    wire wfull, rempty;      // Write full and read empty signals
-    reg winc, rinc, wclk, rclk, wrst_n, rrst_n; // Write and read signals
+  // Signals
+  reg  [DSIZE-1:0] wdata;
+  reg             winc, wclk, wrst_n;
+  reg             rinc, rclk, rrst_n;
+  wire [DSIZE-1:0] rdata;
+  wire            wfull, rempty;
 
-    FIFO #(DSIZE, ASIZE) fifo (
-        .rdata(rdata), 
-        .wdata(wdata),
-        .wfull(wfull),
-        .rempty(rempty),
-        .winc(winc), 
-        .rinc(rinc), 
-        .wclk(wclk), 
-        .rclk(rclk), 
-        .wrst_n(wrst_n), 
-        .rrst_n(rrst_n)
-    );
+  // Instantiate DUT
+  FIFO #(DSIZE, ASIZE) dut (
+    .rdata(rdata),
+    .wfull(wfull),
+    .rempty(rempty),
+    .wdata(wdata),
+    .winc(winc),
+    .wclk(wclk),
+    .wrst_n(wrst_n),
+    .rinc(rinc),
+    .rclk(rclk),
+    .rrst_n(rrst_n)
+  );
 
-    integer i=0;
-    integer seed = 1;
+  // Clock generators
+  initial begin
+    wclk = 0;
+    forever #5 wclk = ~wclk;  // 100 MHz
+  end
 
-    // Read and write clock in loop
-    always #5 wclk = ~wclk;    // faster writing
-    always #10 rclk = ~rclk;   // slower reading
-    
-    initial begin
-        // Initialize all signals
-        wclk = 0;
-        rclk = 0;
-        wrst_n = 1;     // Active low reset
-        rrst_n = 1;     // Active low reset
-        winc = 0;
-        rinc = 0;
-        wdata = 0;
+  initial begin
+    rclk = 0;
+    forever #7 rclk = ~rclk;  // ~71 MHz
+  end
 
-        // Reset the FIFO
-        #40 wrst_n = 0; rrst_n = 0;
-        #40 wrst_n = 1; rrst_n = 1;
+  // Write task
+  task do_write(input [DSIZE-1:0] data);
+    begin
+      @(posedge wclk);
+      if (!wfull) begin
+        wdata <= data;
+        winc <= 1;
+        @(posedge wclk);
+        winc <= 0;
+      end else begin
+        $display("Write %0d skipped: FIFO FULL", data);
+      end
+    end
+  endtask
 
-        // TEST CASE 1: Write data and read it back
-        rinc = 1;
-        for (i = 0; i < 10; i = i + 1) begin
-            wdata = $random(seed) % 256;
-            winc = 1;
-            #10;
-            winc = 0;
-            #10;
-        end
+  // Read task
+  task do_read;
+    begin
+      @(posedge rclk);
+      if (!rempty) begin
+        rinc <= 1;
+        @(posedge rclk);
+        $display("Read = %0d", rdata);
+        rinc <= 0;
+      end else begin
+        $display("Read skipped: FIFO EMPTY");
+      end
+    end
+  endtask
 
-        // TEST CASE 2: Write data to make FIFO full and try to write more data
-        rinc = 0;
-        winc = 1;
-        for (i = 0; i < DEPTH + 3; i = i + 1) begin
-            wdata = $random(seed) % 256;
-            #10;
-        end
+  // Main test
+  initial begin
+    // Dump signals to VCD file
+    $dumpfile("fifo_dump.vcd");
+    $dumpvars(0, FIFO_tb);
+    $dumpvars(0, dut);
 
-        // TEST CASE 3: Read data from empty FIFO and try to read more data
-        winc = 0;
-        rinc = 1;
-        for (i = 0; i < DEPTH + 3; i = i + 1) begin
-            #20;
-        end
+    // Init
+    wdata = 0;
+    winc = 0;
+    rinc = 0;
+    wrst_n = 0;
+    rrst_n = 0;
 
-        $finish;
+    // Reset
+    #10;
+    wrst_n = 1;
+    rrst_n = 1;
+
+    // Write
+    do_write(8'd11);
+    do_write(8'd22);
+    do_write(8'd33);
+    do_write(8'd44);
+
+    // Read after delay
+    #30;
+    do_read();
+    do_read();
+    do_read();
+    do_read();
+    do_read();  // One extra
+
+    // Write more than capacity
+    repeat (20) begin
+      do_write($random % 256);
     end
 
-endmodule
+    #100;
+    $finish;
+  end
 
-//----------------------------EXPLANATION-----------------------------------------------
-// The testbench for the FIFO module generates random data and writes it to the FIFO,
-// then reads it back and compares the results. The testbench includes three test cases:
-// 1. Write data and read it back.
-// 2. Write data to make the FIFO full and try to write more data.
-// 3. Read data from an empty FIFO and try to read more data. The testbench uses
-// clock signals for writing and reading, and includes reset signals to initialize
-// the FIFO. The testbench finishes after running the test cases.
-//--------------------------------------------------------------------------------------
+endmodule
